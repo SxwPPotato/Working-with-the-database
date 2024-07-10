@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dataBase, &DataBase::sig_SendStatusRequest, this, &MainWindow::ReceiveStatusRequestToDB);
 
 
-        this->setupModel("QPSQL",
+        this->setupModel(DB_NAME,
                              QStringList() <<("id")
                                            <<("Дата")
                                            <<("Время")
