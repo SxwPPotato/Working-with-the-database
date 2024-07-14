@@ -22,13 +22,9 @@ DbData::~DbData()
 {
     delete ui;
 }
-/*!
- * \brief Обработчик кнопки "Ок"
- */
+
 void DbData::on_buttonBox_accepted()
 {
-
-    //Добавляем данные в контейнер и передаем в главное окно
 
     data[hostName] = ui->le_host->text();
     data[dbName] = ui->le_dbName->text();

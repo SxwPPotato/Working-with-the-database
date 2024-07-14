@@ -3,17 +3,11 @@
 DataBase::DataBase(QObject *parent)
     : QObject{parent}
 {
-    /*
-    Выделяем память под экземпляр QSqlDataBase, в котором бедет храниться инфомрация о БД
-    */
     dataBase = new QSqlDatabase();
 
     simpleQuery = new QSqlQuery();
 
     tableWidget = new QTableWidget();
-
-
-
 
 }
 
@@ -22,17 +16,11 @@ DataBase::~DataBase()
     delete dataBase;
 }
 
-
 void DataBase::AddDataBase( QString nameDB)
 {
     *dataBase = QSqlDatabase::addDatabase(nameDB);
 }
 
-/*!
- * \brief Метод подключается к БД
- * \param для удобства передаем контейнер с данными необходимыми для подключения
- * \return возвращает тип ошибки
- */
 bool DataBase::ConnectToDataBase(QVector<QString> data)
 {
 
@@ -42,17 +30,13 @@ bool DataBase::ConnectToDataBase(QVector<QString> data)
     dataBase->setPassword(data[pass]);
     dataBase->setPort(data[port].toInt());
 
-    ///Код ДЗ
     bool status;
     return dataBase->open(); 
 
     emit sig_SendStatusConnection(status);
 
 }
-/*!
- * \brief Метод производит отключение от БД
- * \param Имя БД
- */
+
 void DataBase::DisconnectFromDataBase(QString nameDb)
 {
     //Сначала выбираем базу данных
@@ -60,15 +44,10 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
     dataBase->close();
 
 }
-/*!
- * \brief Метод формирует запрос к БД.
- * \param request - SQL запрос
- * \return
- */
+
 void DataBase::RequestToDB(QString request)
 {
-	
-    ///Тут должен быть код ДЗ
+
 
     *simpleQuery = QSqlQuery(*dataBase);
 
@@ -86,14 +65,8 @@ void DataBase::RequestToDB(QString request)
 
 
 
-void DataBase::ReadAnswerFromDB(int requestType)
+void DataBase::ReadAnswerFromDB()
 {
-
-    switch (requestType) {
-    case requestAllFilms:
-    case requestComedy:
-    case requestHorrors:
-    {
         tableWidget->setColumnCount(3);
         tableWidget->setRowCount(0);
         QStringList hdrs;
@@ -117,23 +90,11 @@ void DataBase::ReadAnswerFromDB(int requestType)
             ++conterRows;
         }
 
-        emit sig_SendDataFromDB(tableWidget, requestAllFilms);
-
-
-        break;
-    }
-
-    default:
-        break;
-    }
+        emit sig_SendDataFromDB(tableWidget);
 
 }
 
 
-
-/*!
- * @brief Метод возвращает последнюю ошибку БД
- */
 QSqlError DataBase::GetLastError()
 {
    return dataBase->lastError();

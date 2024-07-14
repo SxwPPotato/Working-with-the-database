@@ -25,21 +25,11 @@ MainWindow::MainWindow(QWidget *parent)
         dataForConnect = receivData;
     });
 
-
     connect(dataBase, &DataBase::sig_SendDataFromDB, this, &MainWindow::ScreenDataFromDB);
 
     connect(dataBase, &DataBase::sig_SendStatusConnection, this, &MainWindow::ReceiveStatusConnectionToDB);
     connect(dataBase, &DataBase::sig_SendStatusRequest, this, &MainWindow::ReceiveStatusRequestToDB);
 
-
-        this->setupModel(DB_NAME,
-                             QStringList() <<("id")
-                                           <<("Дата")
-                                           <<("Время")
-                       );
-
-
-this->createUI();
 }
 
 MainWindow::~MainWindow()
@@ -48,42 +38,10 @@ MainWindow::~MainWindow()
 }
 
 
-
-
-void MainWindow::setupModel(const QString &tableName, const QStringList &headers)
-{
-    model = new QSqlTableModel(this);
-    model->setTable(tableName);
-
-
-    for(int i = 0, j = 0; i < model->columnCount(); i++, j++){
-        model->setHeaderData(i,Qt::Horizontal,headers[j]);
-    }
-  }
-
-void MainWindow::createUI()
-{
-    ui->tableView->setModel(model);
-    ui->tableView->setColumnHidden(0, true);
-    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView->resizeColumnsToContents();
-    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableView->horizontalHeader()->setStretchLastSection(true);
-
-    model->select();
-}
-
-
-
 void MainWindow::on_act_addData_triggered()
 {
     dataDb->show();
 }
-
-/*!
- * @brief Слот выполняет подключение к БД. И отображает ошибки.
- */
 
 void MainWindow::on_act_connect_triggered()
 {
@@ -121,40 +79,41 @@ void MainWindow::on_act_connect_triggered()
     }
 }
 
-/*!
- * \brief Обработчик кнопки "Получить"
- */
 void MainWindow::on_pb_request_clicked()
 {
+    QString typeRequest = ui->cb_category->currentText();
+
+    if(typeRequest == "Все") {
+        auto req = [&]{dataBase->RequestToDB(request_all);};
+
+        QtConcurrent::run(req);
 
 
-    ///Тут должен быть код ДЗ
+    }
 
-    auto req = [&]{dataBase->RequestToDB(request_comedy);};
-
-    QtConcurrent::run(req);
+    else if(typeRequest == "Комедия"){
 
 
+        auto req = [&]{dataBase->RequestToDB(request_comedy);};
+
+        QtConcurrent::run(req);
+    }
+
+    else if(typeRequest == "Ужасы"){
+
+
+        auto req = [&]{dataBase->RequestToDB(request_horror);};
+
+        QtConcurrent::run(req);
+    }
 }
 
-/*!
- * \brief Слот отображает значение в QTableWidget
- * \param widget
- * \param typeRequest
- */
-void MainWindow::ScreenDataFromDB(const QTableWidget *widget, int typeRequest)
+void MainWindow::ScreenDataFromDB(const QTableWidget *widget)
 {
-
-    ///Тут должен быть код ДЗ
-
-    switch (typeRequest) {
-
-        case requestAllFilms:
-        case requestHorrors:
-        case requestComedy:{
 
             ui->tb_result->setRowCount(widget->rowCount( ));
             ui->tb_result->setColumnCount(widget->columnCount( ));
+
             QStringList hdrs;
 
             for(int i = 0; i < widget->columnCount(); ++i){
@@ -170,12 +129,6 @@ void MainWindow::ScreenDataFromDB(const QTableWidget *widget, int typeRequest)
 
             ui->tb_result->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-            break;
-
-        }
-        default:
-            break;
-        }
 }
 
 
@@ -187,7 +140,6 @@ void MainWindow::ReceiveStatusConnectionToDB(bool status)
         ui->lb_statusConnect->setStyleSheet("color:green");
         ui->pb_request->setEnabled(true);
 
-         setupModel("QMYSQL",  QStringList() <<("id")<<("Дата") <<("Время") );
     }
     else{
         dataBase->DisconnectFromDataBase(DB_NAME);
@@ -200,10 +152,6 @@ void MainWindow::ReceiveStatusConnectionToDB(bool status)
 
 }
 
-/*!
- * \brief Метод обрабатывает ответ БД на поступивший запрос
- * \param err
- */
 void MainWindow::ReceiveStatusRequestToDB(QSqlError err)
 {
 
@@ -213,16 +161,19 @@ void MainWindow::ReceiveStatusRequestToDB(QSqlError err)
     }
     else{
 
-        dataBase->ReadAnswerFromDB(requestAllFilms);
+        dataBase->ReadAnswerFromDB();
 
     }
-
-
 
 }
 
 void MainWindow::on_pb_clear_clicked()
 {
-    ui->tb_result->clear();
+    for(int i = ui->tb_result->rowCount() - 1; i >= 0; i--){
+    ui->tb_result->removeRow(i);
+    }
+    for(int j = ui->tb_result->columnCount() - 1; j >= 0; j--){
+    ui->tb_result->removeColumn(j);
+    }
 }
 

@@ -46,14 +46,14 @@ public:
     void RequestToDB(QString request);
     QSqlError GetLastError(void);
 
-    void ReadAnswerFromDB( int answerType );
+    void ReadAnswerFromDB();
 
 
 
 
 signals:
 
-    void sig_SendDataFromDB(const QTableWidget *tableWg, int typeR);
+    void sig_SendDataFromDB(const QTableWidget *tableWg);
     void sig_SendStatusConnection(bool);
     void sig_SendStatusRequest(QSqlError err);
 
@@ -67,6 +67,7 @@ private:
     QTableWidget* tableWidget;
 
     QTableView* tableView;
+
 
 
 

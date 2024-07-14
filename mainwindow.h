@@ -25,7 +25,7 @@ public:
 public slots:
     void ReceiveStatusConnectionToDB(bool status);
     void ReceiveStatusRequestToDB(QSqlError err);
-    void ScreenDataFromDB(const QTableWidget *widget, int typeRequest);
+    void ScreenDataFromDB(const QTableWidget *widget);
 
 private slots:
     void on_act_addData_triggered();
@@ -48,8 +48,6 @@ private:
     DataBase* dataBase;
     QMessageBox* msg;
 
-    QSqlTableModel  *model;
-
 
     QString request_all = "SELECT title, release_year, c.name  FROM film f "
                       "JOIN film_category fc on f.film_id = fc.film_id "
@@ -66,8 +64,6 @@ private:
                       "WHERE c.name = 'Comedy'";
 
 
-    void setupModel(const QString &tableName, const QStringList &headers);
-    void createUI();
 
 };
 #endif // MAINWINDOW_H
